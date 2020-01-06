@@ -24,28 +24,26 @@ parser.add_argument('--lam', type=float, default=0.1,
 parser.add_argument('--max_cycles', default=None,
                     help='max_cycles of alpha-expansion')
 parser.add_argument('--gpu', '-g', type=int, default=0,
-                    help='GPU ID(negative value indicate CPU)')
+                    help='GPU_ID(negative value indicate CPU)')
 parser.add_argument('--model_state_path', type=str, default='model_state.pth',
                     help='pretrained model state')
 
 args = parser.parse_args()
 
-# set device on GPU if available, else CPU
+#Set device to GPU if available else CPU
 if torch.cuda.is_available() and args.gpu >= 0:
     device = torch.device(f'cuda:{args.gpu}')
     print(f'# CUDA available: {torch.cuda.get_device_name(0)}')
 else:
     device = 'cpu'
 
-# set model
-model = Model(n_cluster=args.n_cluster,
-              alpha=args.alpha,
-              device=device,
-              lam=args.lam,
-              max_cycles=args.max_cycles)
+#Build Model
+model = Model(n_cluster=args.n_cluster, alpha=args.alpha, device=device, lam=args.lam, max_cycles=args.max_cycles)
+
 if args.model_state_path is not None:
     model.load_state_dict(torch.load(args.model_state_path, map_location=lambda storage, loc: storage))
     print(f'{args.model_state_path} loaded')
+
 model = model.to(device)
 
 c = Image.open(args.content)
