@@ -70,7 +70,7 @@ if torch.cuda.is_available() and args.gpu >=0:
 else:
 	device = 'cpu'
 
-print(f'mini-batch size: {args.mini-batch}')
+print(f'mini-batch size: {args.batch_size}')
 print(f'epochs: {args.epoch}')
 print()
 
