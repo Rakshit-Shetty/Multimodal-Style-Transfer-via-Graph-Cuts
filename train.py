@@ -22,7 +22,7 @@ parser.add_argument('--epoch', '-e', type=int, default=1,
 parser.add_argument('--gpu', '-g', type=int, default=0,
 					help='GPU_ID (Negative Value indicate CPU)')
 parser.add_argument('--learning_rate', '-lr', type= int, default=1e-5,
-					hep='Learning rate for ADAM Optimizer')
+					help='Learning rate for ADAM Optimizer')
 parser.add_argument('--snapshot_interval', type=int, default=1000,
 					help='Interval of snapshot to generate image')
 parser.add_argument('--n_clusters', type=int, default=3,
