@@ -3,6 +3,16 @@ import torch.nn as nn
 import torch.nn.functional as F 
 import copy
 
+class Interpolate(nn.Module):
+	"""docstring for Interpolate"""
+	def __init__(self, scale_factor=2):
+		super().__init__()
+		self.scale_factor = scale_factor
+
+	def forward(self, x):
+		x = F.interpolate(x, scale_factor=self.scale_factor)
+		return x
+
 VGG_DECODER_RELU5_1 = nn.Sequential(
 
 	nn.ReflectionPad2d((1, 1, 1, 1)),
@@ -48,16 +58,6 @@ VGG_DECODER_RELU5_1 = nn.Sequential(
 	nn.ReflectionPad2d((1, 1, 1, 1)),
 	nn.Conv2d(64, 3, 3)
 	)
-
-class Interpolate(nn.Module):
-	"""docstring for Interpolate"""
-	def __init__(self, scale_factor=2):
-		super().__init__()
-		self.scale_factor = scale_factor
-
-	def forward(self, x):
-		x = F.interpolate(x, scale_factor=self.scale_factor)
-		return x
 
 class Decoder(nn.Module):
 	"""docstring for Decoder"""
