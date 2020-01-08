@@ -2,7 +2,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F 
-from feature_extractor import MST
+from feature_transfer import MST
 from VGGNormalized import VGGNormalized
 from decoder import Decoder
 from utils import download_file_from_google_drive
