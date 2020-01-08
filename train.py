@@ -64,7 +64,7 @@ if not os.path.exists(loss_dir):
 	os.mkdir(image_dir)
 
 #Set device to GPU if available else CPU
-if torch.cuda_is_available() and args.gpu >=0:
+if torch.cuda.is_available() and args.gpu >=0:
 	device = torch.device(f'cuda:{args.gpu}')
 	print(f'CUDA available: {torch.cuda.get_device_name(0)}')
 else:
