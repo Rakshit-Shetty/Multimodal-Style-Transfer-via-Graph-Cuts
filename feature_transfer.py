@@ -88,7 +88,7 @@ class MST:
 
 	def style_feature_clustering(self, style_feature):
 		C, _, _ = style_feature.shape
-		s = style_feature.reshape(C, -1).transpose(0, 1)
+		s = style_feature.reshape(C, -1).transpose(0, 1).numpy()
 
 		self.k_means_estimator.fit(s.to('cpu'))
 		labels = torch.Tensor(self.k_means_estimator.labels_).to(self.device)
