@@ -112,7 +112,7 @@ class MST:
 		labels, s_clusters = self.graph_based_style_matching(content_feature, style_feature)
 		f_cs = torch.zeros_like(content_feature)
 		for f_s, a, k in zip(s_clusters, self.alpha, range(self.k)):
-			labels = (labels == k).unsqueeze(dim=0).expand_as(content_feature)
+			label = (labels == k).unsqueeze(dim=0).expand_as(content_feature)
 			if (label > 0).any():
 				label = label.to(torch.float)
 				f_cs += labelled_whiten_and_color(content_feature, f_s, a, label)
