@@ -25,7 +25,7 @@ parser.add_argument('--learning_rate', '-lr', type= int, default=1e-5,
 					help='Learning rate for ADAM Optimizer')
 parser.add_argument('--snapshot_interval', type=int, default=1000,
 					help='Interval of snapshot to generate image')
-parser.add_argument('--n_clusters', type=int, default=3,
+parser.add_argument('--n_cluster', type=int, default=3,
 					help='Number of clusters of k-means')
 parser.add_argument('--alpha', default=1,
 					help='fusion degree, should be a float or a list which length is n_cluster')
