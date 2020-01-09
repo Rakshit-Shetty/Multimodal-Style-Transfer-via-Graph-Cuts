@@ -53,7 +53,7 @@ class Model(nn.Module):
 			if not os.path.exists('decoder_relu4_1.pth'):
 				download_file_from_google_drive('1kkoyNwRup9y5GT1mPbsZ_7WPQO9qB7ZZ',
                                                 'decoder_relu4_1.pth')
-			self.encoder = VGGEncoder('vgg_normalised_conv5_1.pth')
+			self.encoder = Encoder('vgg_normalised_conv5_1.pth')
 			self.decoder = Decoder(4, 'decoder_relu4_1.pth')
 		else:
 			self.encoder = Encoder()
