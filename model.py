@@ -75,7 +75,7 @@ class Model(nn.Module):
 		cs = []
 
 		for c, s in zip(content_features, style_features):
-			cs.append(MST.trasfer(c, s).unsqueeze(dim=0))
+			cs.append(MST.transfer(c, s).unsqueeze(dim=0))
 
 		cs = torch.cat(cs, dim=0)
 		out = self.decoder(cs)
@@ -101,7 +101,7 @@ class Model(nn.Module):
 
 		cs = []
 		for c, s in zip(content_features, style_features):
-			cs.append(MST.trasfer(c, s).unsqueeze(dim=0))
+			cs.append(MST.transfer(c, s).unsqueeze(dim=0))
 		cs = torch.cat(cs, dim=0)
 
 		out = self.decoder(cs)
