@@ -9,8 +9,8 @@ from utils import download_file_from_google_drive
 
 def calc_mean_std(features):
 	batch_size, c = features.size()[:2]
-	features_mean = features.view(batch_size, c, -1).mean(dim=2).view(batch_size, c, 1, 1)
-	features_std = features.view(batch_size, c, -1).std(dim=2).view(batch_size, c, 1, 1)
+	features_mean = features.reshape(batch_size, c, -1).mean(dim=2).reshape(batch_size, c, 1, 1)
+	features_std = features.reshape(batch_size, c, -1).std(dim=2).reshape(batch_size, c, 1, 1)
 	return features_mean, features_std
 
 class Encoder(nn.Module):
