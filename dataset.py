@@ -56,7 +56,7 @@ class PreProcessDataset(Dataset):
 				continue
 
 	def __len__(self):
-		return len(self.images_pairs)
+		return len(self.image_pairs)
 
 	def __getitem__(self, index):
 		content_image, style_image = self.image_pairs[index]
