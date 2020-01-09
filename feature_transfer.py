@@ -102,8 +102,8 @@ class MST:
 	def graph_based_style_matching(self, content_feature, style_feature):
 		cluster_centers, s_clusters = self.style_feature_clustering(style_feature)
 
-		D = data_term(content_feature, cluster_centers).to('cpu').numpy().astype(np.double)
-		V = pairwise_term(cluster_centers, lam=self.lam).to('cpu').numpy().astype(np.double)
+		D = data_term(content_feature, cluster_centers).to('cpu').detach().numpy().astype(np.double)
+		V = pairwise_term(cluster_centers, lam=self.lam).to('cpu').detach().numpy().astype(np.double)
 		labels = torch.Tensor(aexpansion_grid(D, V, max_cycles=self.max_cycles)).to(self.device)
 
 		return labels, s_clusters
