@@ -100,7 +100,7 @@ prev_optimizer = copy.deepcopy(optimizer)
 
 #Lets begin Training
 loss_list = []
-for e in range(1, args.epochs + 1):
+for e in range(1, args.epoch + 1):
 	print(f'start {e} epoch')
 	for i, (content, style) in tqdm(enumerate(train_loader, 1)):
 		content = content.to(device)
