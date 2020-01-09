@@ -1,12 +1,24 @@
 import os
 import glob
 import numpy as np 
+import argparse
 from tqdm import tqdm
 import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 from skimage import io, transform
 from PIL import Image
+
+parser = argparse.ArgumentParser(description='PreProcess Dataset to get transformed images')
+parser.add_argument('--train_content_dir', type=str, default='/data/content',
+					help='content images dir to train on')
+parser.add_argument('--train_style_dir', type=str, default='/data/style',
+					help='style images dir to train on')
+parser.add_argument('--test_content_dir', type=str, default='/data/content',
+					help='content images to test on')
+parser.add_argument('--test_style_dir', type=str, default='/data/style',
+					help='style images to test on')
+args = parser.parse_args()
 
 
 trans = transforms.Compose([
@@ -67,3 +79,6 @@ class PreProcessDataset(Dataset):
 			content_image = self.transforms(content_image)
 			style_image = self.transforms(style_image)
 			return content_image, style_image
+
+PreProcessDataset(args.train_content_dir, args.train_style_dir)
+PreProcessDataset(args.test_content_dir, args.test_style_dir)
