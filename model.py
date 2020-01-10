@@ -24,7 +24,7 @@ class Encoder(nn.Module):
 		self.block4 = vgg[18: 31]
 
 		for params in self.parameters():
-			params.require_grad = False
+			params.requires_grad = False
 
 	def forward(self, images, output_last_feature=True):
 		h1 = self.block1(images)
