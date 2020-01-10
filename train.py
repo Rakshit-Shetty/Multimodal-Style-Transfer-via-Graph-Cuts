@@ -123,7 +123,7 @@ def main():
 				loss_list.append(loss.item())
 
 				print(f'[{e}/total {args.epoch} epoch], [{i} /'
-					f'total {round(iters/args.batch_size)} iteration]: {loss.item()}')
+					f'total {round(train_iter/args.batch_size)} iteration]: {loss.item()}')
 
 				if i % args.snapshot_interval == 0:
 					content, style = next(test_iter)
