@@ -110,7 +110,7 @@ class Model(nn.Module):
 		out_middle_features = self.encoder(out, output_last_feature=False)
 		style_middle_features = self.encoder(style_images, output_last_feature=False)
 
-		loss_c = calc_content_loss(output_features, content_features)
-		loss_s = calc_style_loss(out_middle_features, style_middle_features)
+		loss_c = self.calc_content_loss(output_features, content_features)
+		loss_s = self.calc_style_loss(out_middle_features, style_middle_features)
 		loss = loss_c + gamma * loss_s
 		return loss
