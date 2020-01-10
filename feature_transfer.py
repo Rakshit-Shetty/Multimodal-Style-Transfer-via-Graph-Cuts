@@ -90,7 +90,7 @@ class MST:
 		C, _, _ = style_feature.shape
 		s = style_feature.reshape(C, -1).transpose(0, 1)
 
-		self.k_means_estimator.fit(s.to('cpu').data().numpy())
+		self.k_means_estimator.fit(s.to('cpu').numpy())
 		labels = torch.Tensor(self.k_means_estimator.labels_).to(self.device)
 		cluster_centers = torch.Tensor(self.k_means_estimator.cluster_centers_).to(self.device).transpose(0, 1)
 
