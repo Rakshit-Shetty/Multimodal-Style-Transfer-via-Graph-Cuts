@@ -14,138 +14,135 @@ from torchvision.utils import save_image
 from dataset import PreProcessDataset
 from model import Model
 
-def main():
-	parser = argparse.ArgumentParser(description='Multimodal Style Transfer via Graph Cuts using PyTorch')
-	parser.add_argument('--batch_size', '-b', type=int, default=16,
-						help='number of images in mini-batch')
-	parser.add_argument('--epoch', '-e', type=int, default=1,
-						help='No of runs over the dataset to train')
-	parser.add_argument('--gpu', '-g', type=int, default=0,
-						help='GPU_ID (Negative Value indicate CPU)')
-	parser.add_argument('--learning_rate', '-lr', type= int, default=1e-5,
-						help='Learning rate for ADAM Optimizer')
-	parser.add_argument('--snapshot_interval', type=int, default=1000,
-						help='Interval of snapshot to generate image')
-	parser.add_argument('--n_cluster', type=int, default=3,
-						help='Number of clusters of k-means')
-	parser.add_argument('--alpha', default=1,
-						help='fusion degree, should be a float or a list which length is n_cluster')
-	parser.add_argument('--lam', type=float, default=0.1,
-						help='weight of pairwise term in alpha-expansion')
-	parser.add_argument('--max_cycles', default=None,
-						help='max_cycles of alpha-expansion')
-	parser.add_argument('--gamma', type=float, default=1,
-						help='weight of style loss')
-	parser.add_argument('--train_content_dir', type=str, default='/data/content',
-						help='content images dir to train on')
-	parser.add_argument('--train_style_dir', type=str, default='/data/style',
-						help='style images dir to train on')
-	parser.add_argument('--test_content_dir', type=str, default='/data/content',
-						help='content images to test on')
-	parser.add_argument('--test_style_dir', type=str, default='/data/style',
-						help='style images to test on')
-	parser.add_argument('--save_dir', type=str, default='result',
-	                    help='save directory for result and loss')
-	parser.add_argument('--reuse', default=None,
-	                    help='model state path to load for reuse')
+parser = argparse.ArgumentParser(description='Multimodal Style Transfer by PyTorch')
+parser.add_argument('--batch_size', '-b', type=int, default=16,
+					help='No of images in each mini-batch')
+parser.add_argument('--epoch', '-e', type=int, default=1,
+					help='No. of sweeps over dataset to train')
+parser.add_argument('--gpu', '-g', type=int, default=0,
+					help='GPU_ID (negative if CPU)')
+parser.add_argument('--learning_rate', '-lr', type=int, default=1e-5,
+					help='Learning rate for the optimizer(Adam)')
+parser.add_argument('--snapshot_interval', type=int, default=1000,
+					help='Snapshot interval to generate image')
+parser.add_argument('--n_cluster', type=int, default=3,
+					help='No of clusters of k-means')
+parser.add_argument('--alpha', default=1,
+					help='fusion degreewhich should be a float or a list with length equal to n_cluster')
+parser.add_argument('--lam', type=float, default=0.1,
+					help='weight of pairwise-term in alpha expansion')
+parser.add_argument('--max_cycles', default=None,
+					help='max cycles of alpha expansion')
+parser.add_argument('--gamma', type=float, default=1,
+					help='Weight of style loss')
+parser.add_argument('--train_content_dir', type=str, default='/data/train_content',
+					help='Content images Directory to train on')
+parser.add_argument('--test_content_dir', type=str, default='/data/test_content',
+					help='Content images Directory to test on')
+parser.add_argument('--train_style_dir', type=str, default='/data/train_style',
+					help='Style images Directory to train on')
+parser.add_argument('--test_style_dir', type=str, default='/data/test_style',
+					help='Style images Directory to test on')
+parser.add_argument('--save_dir', type=str, default='result',
+					help='Save Directory to save model and loss data')
+parser.add_argument('--reuse', default=None,
+					help='Model state path to load for reuse')
 
-	args = parser.parse_args()
+args = parser.parse_args()
 
-	#Create Save Directory
-	if not os.path.exists(args.save_dir):
-		os.mkdir(args.save_dir)
 
-	loss_dir = f'{args.save_dir}/loss'
-	model_state_dir = f'{args.save_dir}/model_state'
-	image_dir = f'{args.save_dir}/image'
+#Create Save Directory
+if not os.path.exists(args.save_dir):
+	os.mkdir(args.save_dir)
 
-	if not os.path.exists(loss_dir):
-		os.mkdir(loss_dir)
-		os.mkdir(model_state_dir)
-		os.mkdir(image_dir)
+loss_dir = f'{args.save_dir}/loss'
+model_state_dir = f'{args.save_dir}/model_state'
+image_dir = f'{args.save_dir}/image'
 
-	#Set device to GPU if available else CPU
-	if torch.cuda.is_available() and args.gpu >=0:
-		device = torch.device(f'cuda:{args.gpu}')
-		print(f'CUDA available: {torch.cuda.get_device_name(0)}')
-	else:
-		device = 'cpu'
+if not os.path.exists(loss_dir):
+	os.mkdir(loss_dir)
+	os.mkdir(model_state_dir)
+	os.mkdir(image_dir)
 
-	print(f'mini-batch size: {args.batch_size}')
-	print(f'epochs: {args.epoch}')
-	print()
+#Set device to GPU if available else CPU
+if torch.cuda.is_available() and args.gpu >=0:
+	device = torch.device(f'cuda:{args.gpu}')
+	print(f'CUDA available: {torch.cuda.get_device_name(0)}')
+else:
+	device = 'cpu'
 
-	#Prepare a stable dataset and its DataLoader
-	train_dataset = PreProcessDataset(args.train_content_dir, args.train_style_dir)
-	test_dataset = PreProcessDataset(args.test_content_dir, args.test_style_dir)
-	train_iter = len(train_dataset)
-	print(f'length of train image pairs {train_iter}')
+print(f'mini-batch size: {args.batch_size}')
+print(f'epochs: {args.epoch}')
+print()
 
-	train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-	test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
-	test_iter = len(test_loader)
+#Prepare a stable dataset and its DataLoader
+train_dataset = PreProcessDataset(args.train_content_dir, args.train_style_dir)
+test_dataset = PreProcessDataset(args.test_content_dir, args.test_style_dir)
+train_iter = len(train_dataset)
+print(f'length of train image pairs {train_iter}')
 
-	model = Model(n_cluster=args.n_cluster,
-				alpha=args.alpha,
-				device=device,
-				pre_train=True,
-				lam=args.lam,
-				max_cycles=args.max_cycles).to(device)
-	if args.reuse is not None:
-		model.load_state_dict(torch.load(args.reuse, map_location=lambda storage, loc:storage))
-		print(f'{args.reuse} loaded')
+train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
+test_iter = len(test_loader)
 
-	optimizer = Adam(model.parameters(), lr=args.learning_rate)
-	prev_model = copy.deepcopy(model)
-	prev_optimizer = copy.deepcopy(optimizer)
+model = Model(n_cluster=args.n_cluster,
+			alpha=args.alpha,
+			device=device,
+			pre_train=True,
+			lam=args.lam,
+			max_cycles=args.max_cycles).to(device)
+if args.reuse is not None:
+	model.load_state_dict(torch.load(args.reuse, map_location=lambda storage, loc:storage))
+	print(f'{args.reuse} loaded')
 
-	#Lets begin Training
-	loss_list = []
-	for e in range(1, args.epoch + 1):
-		print(f'start {e} epoch')
-		for i, (content, style) in tqdm(enumerate(train_loader, 1)):
-			content = content.to(device)
-			style = style.to(device)
-			loss = model(content, style, args.gamma)
+optimizer = Adam(model.parameters(), lr=args.learning_rate)
+prev_model = copy.deepcopy(model)
+prev_optimizer = copy.deepcopy(optimizer)
 
-			if torch.isnan(loss):
-				model = prev_model
-				optimizer = Adam(model.parameters())
-				optimizer.load_state_dict(prev_optimizer.state_dict())
-			else:
-				prev_model = copy.deepcopy(model)
-				prev_optimizer = copy.deepcopy(optimizer)
+#Lets begin Training
+loss_list = []
+for e in range(1, args.epoch + 1):
+	print(f'start {e} epoch')
+	for i, (content, style) in tqdm(enumerate(train_loader, 1)):
+		content = content.to(device)
+		style = style.to(device)
+		loss = model(content, style, args.gamma)
 
-				optimizer.zero_grad()
-				loss.backward()
-				optimizer.step()
+		if torch.isnan(loss):
+			model = prev_model
+			optimizer = Adam(model.parameters())
+			optimizer.load_state_dict(prev_optimizer.state_dict())
+		else:
+			prev_model = copy.deepcopy(model)
+			prev_optimizer = copy.deepcopy(optimizer)
 
-				loss_list.append(loss.item())
+			optimizer.zero_grad()
+			loss.backward()
+			optimizer.step()
 
-				print(f'[{e}/total {args.epoch} epoch], [{i} /'
-					f'total {round(train_iter/args.batch_size)} iteration]: {loss.item()}')
+			loss_list.append(loss.item())
 
-				if i % args.snapshot_interval == 0:
-					content, style = next(test_iter)
-					content = content.to(device)
-					style = style.to(device)
-					with torch.no_grad() :
-						out = model.generate(content, style)
-					res = torch.cat([content, style, out], dim=0)
-					res = res.to('cpu')
-					save_image(res, f'{image_dir}/{e}_epoch_{i}_iteration.png', nrow=args.batch_size)
-					torch.save(model.state_dict(), f'{model_state_dir}/{e}_epoch_{i}_iteration.pth')
+			print(f'[{e}/total {args.epoch} epoch], [{i} /'
+				f'total {round(train_iter/args.batch_size)} iteration]: {loss.item()}')
 
-		torch.save(model.state_dict(), f'{model_state_dir}/{e}_epoch.pth')
-	plt.plot(range(len(loss_list)), loss_list)
-	plt.xlabel('Iteration')
-	plt.ylabel('loss')
-	plt.title('Train Loss')
-	plt.savefig(f'{loss_dir}/train_loss.png')
-	with open(f'{loss_dir}/loss_log.txt', 'w') as f:
-	    for l in loss_list:
-	        f.write(f'{l}\n')
-	print(f'Loss saved in {loss_dir}')
+			if i % args.snapshot_interval == 0:
+				content, style = next(test_iter)
+				content = content.to(device)
+				style = style.to(device)
+				with torch.no_grad() :
+					out = model.generate(content, style)
+				res = torch.cat([content, style, out], dim=0)
+				res = res.to('cpu')
+				save_image(res, f'{image_dir}/{e}_epoch_{i}_iteration.png', nrow=args.batch_size)
+				torch.save(model.state_dict(), f'{model_state_dir}/{e}_epoch_{i}_iteration.pth')
 
-if __name__  == '__main__':
-	main()
+	torch.save(model.state_dict(), f'{model_state_dir}/{e}_epoch.pth')
+plt.plot(range(len(loss_list)), loss_list)
+plt.xlabel('Iteration')
+plt.ylabel('loss')
+plt.title('Train Loss')
+plt.savefig(f'{loss_dir}/train_loss.png')
+with open(f'{loss_dir}/loss_log.txt', 'w') as f:
+    for l in loss_list:
+        f.write(f'{l}\n')
+print(f'Loss saved in {loss_dir}')

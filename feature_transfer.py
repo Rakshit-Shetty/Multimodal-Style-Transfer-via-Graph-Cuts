@@ -118,6 +118,3 @@ class MST:
 				f_cs += labelled_whiten_and_color(content_feature, f_s, a, label)
 
 		return f_cs
-
-
-

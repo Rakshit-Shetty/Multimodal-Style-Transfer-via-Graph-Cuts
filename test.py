@@ -6,9 +6,12 @@ from torchvision import transforms
 from torchvision.utils import save_image
 from model import Model
 
-trans = transforms.Compose([transforms.ToTensor()])
+trans = transforms.Compose([
+	transforms.Resize((512,512)),
+	transforms.ToTensor()
+	])
 
-parser = argparse.ArgumentParser(description='Multimodal Style Transfer by Pytorch')
+parser = argparse.ArgumentParser(description='Multimodal Style Transfer via Graph Cuts by Pytorch')
 parser.add_argument('--content', '-c', type=str, default=None,
                     help='Content image path e.g. content.jpg')
 parser.add_argument('--style', '-s', type=str, default=None,
@@ -75,4 +78,3 @@ o.paste(s,  (0, o.height - s.height))
 o.save(f'{args.output_name}_with_style_image.jpg', quality=95)
 
 print(f'result saved into files starting with {args.output_name}')
-

@@ -16,7 +16,7 @@ This repository provides a pre-trained model for you to generate your own image 
 Optional but recommended for training
 - GPU environment 
 
-## I have provided a jupyter notebook with instructions to run the training and testing scripts using the Google Colab's free GPU. 
+## I have provided a jupyter notebook with instructions to run the training and testing python files using the Google Colab's free GPU. 
 If you wish to run them on your local machine you can follow the instructions below.
 Note: Testing does not require GPU.
 
@@ -58,7 +58,7 @@ Note: Testing does not require GPU.
 
 3. Download the pretrained model [here](https://drive.google.com/)
 
-4. Generate the output image. A transferred output image w/&w/o style image and a NST_demo_like image will be generated.
+4. Generate the output image. 3 outputs in total. A transferred output image with and without style image and a nested_demo_like image like those before and after image will be generated.
 
    ```python
    python test.py -c content_image_path -s style_image_path
