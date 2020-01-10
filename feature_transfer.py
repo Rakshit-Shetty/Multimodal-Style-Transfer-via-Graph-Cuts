@@ -90,7 +90,7 @@ class MST:
 		C, _, _ = style_feature.shape
 		s = style_feature.reshape(C, -1).transpose(0, 1)
 
-		self.k_means_estimator.fit(s.to('cpu').numpy())
+		self.k_means_estimator.fit(s.to('cpu'))
 		labels = torch.Tensor(self.k_means_estimator.labels_).to(self.device)
 		cluster_centers = torch.Tensor(self.k_means_estimator.cluster_centers_).to(self.device).transpose(0, 1)
 
@@ -102,8 +102,8 @@ class MST:
 	def graph_based_style_matching(self, content_feature, style_feature):
 		cluster_centers, s_clusters = self.style_feature_clustering(style_feature)
 
-		D = data_term(content_feature, cluster_centers).to('cpu').data().numpy().astype(np.double)
-		V = pairwise_term(cluster_centers, lam=self.lam).to('cpu').data().numpy().astype(np.double)
+		D = data_term(content_feature, cluster_centers).to('cpu').numpy().astype(np.double)
+		V = pairwise_term(cluster_centers, lam=self.lam).to('cpu').numpy().astype(np.double)
 		labels = torch.Tensor(aexpansion_grid(D, V, max_cycles=self.max_cycles)).to(self.device)
 
 		return labels, s_clusters
