@@ -40,7 +40,7 @@ def labelled_whiten_and_color(f_c, f_s, alpha, label):
 		c_d = c_e[:k_c ].pow(-0.5)
 
 		w_step1 = torch.mm(c_v[:, :k_c], torch.diag(c_d))
-		w_step2 = torch.mm(w_step1, c_v[:, :k_c].t())
+		w_step2 = torch.mm(w_step1, (c_v[:, :k_c].t()))
 		whitened = torch.mm(w_step2, cf)
 
 		sf = f_s.t()
@@ -58,8 +58,8 @@ def labelled_whiten_and_color(f_c, f_s, alpha, label):
 				k_s = i 
 				break
 		'''
-		s_d = s_e[:k_s ].pow(-0.5)
-		c_step1 = torch.mm(s_v[:, :k_s], torch.diag(c_s))
+		s_d = s_e[:k_s].pow(-0.5)
+		c_step1 = torch.mm(s_v[:, :k_s], torch.diag(s_d))
 		c_step2 = torch.mm(c_step1, s_v[:, :k_s].t())
 		colored = torch.mm(c_step2, whitened).reshape(c, h, w)
 		s_mean = s_mean.reshape(c, 1, 1) * label
