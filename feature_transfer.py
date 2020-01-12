@@ -63,7 +63,7 @@ def labelled_whiten_and_color(f_c, f_s, alpha, label):
 		c_step2 = torch.mm(c_step1, s_v[:, :k_s].t())
 		colored = torch.mm(c_step2, whitened).reshape(c, h, w)
 		s_mean = s_mean.reshape(c, 1, 1) * label
-		colored += s_mean
+		colored = colored + s_mean
 		colored_feature = alpha * colored + (1 - alpha) * (f_c * label)
 		
 	except:
