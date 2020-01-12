@@ -73,7 +73,7 @@ def labeled_whiten_and_color(f_c, f_s, alpha, label):
     return colored_feature
 
 
-class MultimodalStyleTransfer:
+class MST:
     def __init__(self, n_cluster, alpha, device='cpu', lam=0.1, max_cycles=None):
         self.k = n_cluster
         self.k_means_estimator = KMeans(n_cluster)
