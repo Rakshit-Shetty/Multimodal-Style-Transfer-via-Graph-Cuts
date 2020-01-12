@@ -66,8 +66,6 @@ def labeled_whiten_and_color(f_c, f_s, alpha, label):
         colored = colored + s_mean
         colored_feature = alpha * colored + (1 - alpha) * (f_c * label)
     except:
-        # Need fix
-        # RuntimeError: MAGMA gesdd : the updating process of SBDSDC did not converge
         colored_feature = f_c * label
 
     return colored_feature
