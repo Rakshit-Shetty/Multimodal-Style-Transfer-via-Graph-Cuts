@@ -68,14 +68,14 @@ class Model(nn.Module):
 		lam = self.lam if lam is None else lam
 		max_cycles = self.max_cycles if max_cycles is None else max_cycles
 
-		MS_T = MST(n_cluster, alpha, device, lam, max_cycles)
+		MST = MST(n_cluster, alpha, device, lam, max_cycles)
 
 		content_features = self.encoder(content_images, output_last_feature=True)
 		style_features = self.encoder(style_images, output_last_feature=True)
 		cs = []
 
 		for c, s in zip(content_features, style_features):
-			cs.append(MS_T.transfer(c, s).unsqueeze(dim=0))
+			cs.append(MST.transfer(c, s).unsqueeze(dim=0))
 
 		cs = torch.cat(cs, dim=0)
 		out = self.decoder(cs)
