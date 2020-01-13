@@ -59,7 +59,7 @@ def labelled_whiten_and_color(f_c, f_s, alpha, label):
 				break
 		'''
 		s_d = s_e[:k_s ].pow(-0.5)
-		c_step1 = torch.mm(s_v[:, :k_s], torch.diag(s_d))
+		c_step1 = torch.mm(s_v[:, :k_s], torch.diag(c_s))
 		c_step2 = torch.mm(c_step1, s_v[:, :k_s].t())
 		colored = torch.mm(c_step2, whitened).reshape(c, h, w)
 		s_mean = s_mean.reshape(c, 1, 1) * label
