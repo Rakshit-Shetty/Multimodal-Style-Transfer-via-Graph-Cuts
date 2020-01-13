@@ -2,8 +2,8 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from feature_transfer import MST
-from VGGNormalized import VGGNormalized
+from feature_transfer import MultimodalStyleTransfer
+from VGGNormalized import NormalisedVGG
 from decoder import Decoder
 from utils import download_file_from_google_drive
 
@@ -15,17 +15,17 @@ def calc_mean_std(features):
     return features_mean, features_std
 
 
-class Encoder(nn.Module):
+class VGGEncoder(nn.Module):
     def __init__(self, pretrained_path=None):
         super().__init__()
-        vgg = VGGNormalized(pretrained_path=pretrained_path).net
+        vgg = NormalisedVGG(pretrained_path=pretrained_path).net
         self.block1 = vgg[: 4]
         self.block2 = vgg[4: 11]
         self.block3 = vgg[11: 18]
         self.block4 = vgg[18: 31]
 
-        for params in self.parameters():
-            params.requires_grad = False
+        for p in self.parameters():
+            p.requires_grad = False
 
     def forward(self, images, output_last_feature=True):
         h1 = self.block1(images)
@@ -39,7 +39,13 @@ class Encoder(nn.Module):
 
 
 class Model(nn.Module):
-    def __init__(self, n_cluster=3, alpha=1, device='cpu', lam=0.1, pre_train=False, max_cycles=None):
+    def __init__(self,
+                 n_cluster=3,
+                 alpha=1,
+                 device='cpu',
+                 lam=0.1,
+                 pre_train=False,
+                 max_cycles=None):
         super().__init__()
         self.n_cluster = n_cluster
         self.alpha = alpha
@@ -53,15 +59,26 @@ class Model(nn.Module):
             if not os.path.exists('decoder_relu4_1.pth'):
                 download_file_from_google_drive('1kkoyNwRup9y5GT1mPbsZ_7WPQO9qB7ZZ',
                                                 'decoder_relu4_1.pth')
-            self.encoder = Encoder('vgg_normalised_conv5_1.pth')
+            self.vgg_encoder = VGGEncoder('vgg_normalised_conv5_1.pth')
             self.decoder = Decoder(4, 'decoder_relu4_1.pth')
         else:
-            self.encoder = Encoder()
+            self.vgg_encoder = VGGEncoder()
             self.decoder = Decoder(4)
 
-        self.MST = MST(n_cluster, alpha, device, lam, max_cycles)
+        self.multimodal_style_feature_transfer = MultimodalStyleTransfer(n_cluster,
+                                                                         alpha,
+                                                                         device,
+                                                                         lam,
+                                                                         max_cycles)
 
-    def generate(self, content_images, style_images, n_cluster=None, alpha=None, device=None, lam=None, max_cycles=None):
+    def generate(self,
+                 content_images,
+                 style_images,
+                 n_cluster=None,
+                 alpha=None,
+                 device=None,
+                 lam=None,
+                 max_cycles=None):
 
         n_cluster = self.n_cluster if n_cluster is None else n_cluster
         alpha = self.alpha if alpha is None else alpha
@@ -69,14 +86,18 @@ class Model(nn.Module):
         lam = self.lam if lam is None else lam
         max_cycles = self.max_cycles if max_cycles is None else max_cycles
 
-        MST = MST(n_cluster, alpha, device, lam, max_cycles)
+        multimodal_style_feature_transfer = MultimodalStyleTransfer(n_cluster,
+                                                                    alpha,
+                                                                    device,
+                                                                    lam,
+                                                                    max_cycles)
 
-        content_features = self.encoder(content_images, output_last_feature=True)
-        style_features = self.encoder(style_images, output_last_feature=True)
+        content_features = self.vgg_encoder(content_images, output_last_feature=True)
+        style_features = self.vgg_encoder(style_images, output_last_feature=True)
         cs = []
 
         for c, s in zip(content_features, style_features):
-            cs.append(MST.transfer(c, s).unsqueeze(dim=0))
+            cs.append(multimodal_style_feature_transfer.transfer(c, s).unsqueeze(dim=0))
         cs = torch.cat(cs, dim=0)
 
         out = self.decoder(cs)
@@ -96,19 +117,19 @@ class Model(nn.Module):
         return loss
 
     def forward(self, content_images, style_images, gamma=1):
-        content_features = self.encoder(content_images, output_last_feature=True)
-        style_features = self.encoder(style_images, output_last_feature=True)
+        content_features = self.vgg_encoder(content_images, output_last_feature=True)
+        style_features = self.vgg_encoder(style_images, output_last_feature=True)
 
         cs = []
         for c, s in zip(content_features, style_features):
-            cs.append(self.MST.transfer(c, s).unsqueeze(dim=0))
+            cs.append(self.multimodal_style_feature_transfer.transfer(c, s).unsqueeze(dim=0))
         cs = torch.cat(cs, dim=0)
 
         out = self.decoder(cs)
 
-        output_features = self.encoder(out, output_last_feature=True)
-        output_middle_features = self.encoder(out, output_last_feature=False)
-        style_middle_features = self.encoder(style_images, output_last_feature=False)
+        output_features = self.vgg_encoder(out, output_last_feature=True)
+        output_middle_features = self.vgg_encoder(out, output_last_feature=False)
+        style_middle_features = self.vgg_encoder(style_images, output_last_feature=False)
 
         loss_c = self.calc_content_loss(output_features, content_features)
         loss_s = self.calc_style_loss(output_middle_features, style_middle_features)
