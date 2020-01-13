@@ -11,7 +11,7 @@ trans = transforms.Compose([
 	transforms.ToTensor()])
 
 
-def test():
+def main():
     parser = argparse.ArgumentParser(description='Multimodal Style Transfer by Pytorch')
     parser.add_argument('--content', '-c', type=str, default=None,
                         help='Content image path e.g. content.jpg')
@@ -84,4 +84,4 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    main()

@@ -15,7 +15,7 @@ from dataset import PreProcessDataset
 from model import Model
 
 
-def train():
+def main():
     parser = argparse.ArgumentParser(description='Mulitmodal Style Transfer by Pytorch')
     parser.add_argument('--batch_size', '-b', type=int, default=16,
                         help='number of images in each mini-batch')
@@ -150,4 +150,4 @@ def train():
 
 
 if __name__ == '__main__':
-    train()
+    main()

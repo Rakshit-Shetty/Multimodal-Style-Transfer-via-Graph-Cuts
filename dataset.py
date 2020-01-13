@@ -68,7 +68,7 @@ class PreProcessDataset(Dataset):
 			style_image = self.transforms(style_image)
 			return content_image, style_image
 
-if __name__ == '__main__':
+def main():
 	cli = argparse.ArgumentParser(description='PreProcess Dataset to get transformed images')
 	cli.add_argument('--train_content_dir', type=str, default='/data/content',
 					help='content images dir to train on')
@@ -81,3 +81,6 @@ if __name__ == '__main__':
 	args = cli.parse_args()
 	PreProcessDataset(args.train_content_dir, args.train_style_dir)
 	PreProcessDataset(args.test_content_dir, args.test_style_dir)
+
+if __name__ == '__main__':
+	main()
