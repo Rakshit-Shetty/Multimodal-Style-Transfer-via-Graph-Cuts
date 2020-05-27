@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from feature_transfer import MultimodalStyleTransfer
 from VGGNormalized import NormalisedVGG
-from VGGdecoder import Decoder
+from decoder import Decoder
 from utils import download_file_from_google_drive
 
 
